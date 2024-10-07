@@ -172,6 +172,23 @@ class GitLabApi:
             }
         )
 
+    def protect_branches(self, project):
+        # protect branches from force push and merge without review
+        _ = project.protectedbranches.create({
+            'name': '*',  # All branches protection
+            'push_access_level': gitlab.const.AccessLevel.DEVELOPER,
+            'merge_access_level': gitlab.const.AccessLevel.OWNER,
+            'allow_force_push': False,  
+        })
+
+
+        _ = project.protectedbranches.create({
+            'name': 'main',  # main branch protection
+            'push_access_level': gitlab.const.AccessLevel.OWNER,
+            'merge_access_level': gitlab.const.AccessLevel.OWNER,
+            'allow_force_push': False,
+        })
+
     def create_project(
         self,
         student: Student,
@@ -189,6 +206,8 @@ class GitLabApi:
             if project.path_with_namespace == gitlab_project_path:
                 logger.info(f"Project {student.username} for group {self._course_students_group} already exists")
                 project = self._gitlab.projects.get(project.id)
+
+                self.protect_branches(project)
 
                 # ensure student is a member of the project
                 try:
@@ -232,6 +251,8 @@ class GitLabApi:
         # Unprotect all branches
         for protected_branch in project.protectedbranches.list(get_all=True):
             protected_branch.delete()
+        
+        self.protect_branches(project)
         project.save()
 
         logger.info(f"Git project forked {course_public_project.path_with_namespace} -> {project.path_with_namespace}")
