@@ -196,6 +196,14 @@ class GitLabApi:
         except gitlab.GitlabCreateError:
             logger.info("main branch lready exists")
 
+        try:
+            approval_settings = project.approvals.get()
+            approval_settings.approvals_before_merge = 1
+            approval_settings.save()
+            logger.info("Set approvals cnt")
+        except Exception:
+            logger.info("Error: set approvals")
+
     def create_project(
         self,
         student: Student,
