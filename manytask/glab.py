@@ -177,15 +177,15 @@ class GitLabApi:
         _ = project.protectedbranches.create({
             'name': '*',  # All branches protection
             'push_access_level': gitlab.const.AccessLevel.DEVELOPER,
-            'merge_access_level': gitlab.const.AccessLevel.OWNER,
+            'merge_access_level': gitlab.const.AccessLevel.MAINTAINER,
             'allow_force_push': False,  
         })
 
 
         _ = project.protectedbranches.create({
             'name': 'main',  # main branch protection
-            'push_access_level': gitlab.const.AccessLevel.OWNER,
-            'merge_access_level': gitlab.const.AccessLevel.OWNER,
+            'push_access_level': gitlab.const.AccessLevel.MAINTAINER,
+            'merge_access_level': gitlab.const.AccessLevel.MAINTAINER,
             'allow_force_push': False,
         })
 
