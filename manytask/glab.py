@@ -173,21 +173,28 @@ class GitLabApi:
         )
 
     def protect_branches(self, project):
-        # protect branches from force push and merge without review
-        _ = project.protectedbranches.create({
-            'name': '*',  # All branches protection
-            'push_access_level': gitlab.const.AccessLevel.DEVELOPER,
-            'merge_access_level': gitlab.const.AccessLevel.MAINTAINER,
-            'allow_force_push': False,  
-        })
+        try:
+             # protect branches from force push and merge without review
+            _ = project.protectedbranches.create({
+                'name': '*',  # All branches protection
+                'push_access_level': gitlab.const.AccessLevel.DEVELOPER,
+                'merge_access_level': gitlab.const.AccessLevel.MAINTAINER,
+                'allow_force_push': False,  
+            })
+            logger.info("Protected all branches")
+        except gitlab.GitlabCreateError:
+            logger.info("* branch lready exists")
 
-
-        _ = project.protectedbranches.create({
-            'name': 'main',  # main branch protection
-            'push_access_level': gitlab.const.AccessLevel.MAINTAINER,
-            'merge_access_level': gitlab.const.AccessLevel.MAINTAINER,
-            'allow_force_push': False,
-        })
+        try:
+            _ = project.protectedbranches.create({
+                'name': 'main',  # main branch protection
+                'push_access_level': gitlab.const.AccessLevel.MAINTAINER,
+                'merge_access_level': gitlab.const.AccessLevel.MAINTAINER,
+                'allow_force_push': False,
+            })
+            logger.info("Protected main branches")
+        except gitlab.GitlabCreateError:
+            logger.info("main branch lready exists")
 
     def create_project(
         self,
